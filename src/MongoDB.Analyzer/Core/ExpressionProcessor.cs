@@ -32,6 +32,9 @@ internal static class ExpressionProcessor
 
         public static RewriteContext Linq(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
             new(AnalysisType.Linq, Expression, RootNode, SemanticModel, TypesProcessor, new());
+
+        public static RewriteContext EF(SyntaxNode Expression, SyntaxNode RootNode, SemanticModel SemanticModel, TypesProcessor TypesProcessor) =>
+            new(AnalysisType.EF, Expression, RootNode, SemanticModel, TypesProcessor, new());
     }
 
     private enum RewriteAction
@@ -88,7 +91,7 @@ internal static class ExpressionProcessor
                     removeFluentParameters = true;
                     break;
                 }
-            case AnalysisType.Linq:
+            case AnalysisType.Linq or AnalysisType.EF:
                 {
                     lambdaAndQueryIdentifiers = expressionNode
                       .DescendantNodes(n => n != rootNode)
@@ -281,7 +284,7 @@ internal static class ExpressionProcessor
                     }
                     break;
                 }
-            case AnalysisType.Linq:
+            case AnalysisType.Linq or AnalysisType.EF:
                 {
                     if (methodSymbol.ReceiverType.IsIQueryable() ||
                         methodSymbol.ReturnType.IsIQueryable())

@@ -62,4 +62,7 @@ internal static class ITelemetryServiceExtensions
 
     public static void PocoAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
         telemetryService.Event("POCOs analyzed", analysisStatistics.ToKeyValues());
+
+    public static void EFAnalysisResult(this ITelemetryService telemetryService, AnalysisTelemetry analysisStatistics) =>
+        telemetryService.Event("EF analyzed", analysisStatistics.ToKeyValues());
 }

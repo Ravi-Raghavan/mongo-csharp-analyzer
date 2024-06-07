@@ -17,6 +17,7 @@ namespace MongoDB.Analyzer.Core;
 internal static class SymbolExtensions
 {
     private const string AssemblyMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceEF = "Microsoft.EntityFrameworkCore";
     private const string NamespaceMongoDBBson = "MongoDB.Bson";
     private const string NamespaceMongoDBBsonAttributes = "MongoDB.Bson.Serialization.Attributes";
     private const string NamespaceMongoDBDriver = "MongoDB.Driver";
@@ -81,7 +82,7 @@ internal static class SymbolExtensions
 
     public static AccessorDeclarationSyntax[] GetPropertyAccessors(this IPropertySymbol propertySymbol) =>
         propertySymbol.IsReadOnly ? GetReadOnlyPropertyAccessors() : (propertySymbol.IsWriteOnly ? GetWriteOnlyPropertyAccessors() : GetReadWritePropertyAccessors());
-    
+
     public static IMethodSymbol GetMethodSymbol(this SyntaxNode node, SemanticModel semanticModel) =>
         semanticModel.GetSymbolInfo(node).Symbol as IMethodSymbol;
 
@@ -145,6 +146,9 @@ internal static class SymbolExtensions
             _ => false
         };
 
+    public static bool IsEF(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceEF;
+
     public static bool IsFindFluent(this ITypeSymbol typeSymbol) =>
         typeSymbol?.Name switch
         {
@@ -201,7 +205,7 @@ internal static class SymbolExtensions
     public static bool IsSupportedMongoCollectionType(this ITypeSymbol typeSymbol) =>
         typeSymbol.TypeKind == TypeKind.Class &&
         !typeSymbol.IsAnonymousType;
-    
+
     public static bool IsSupportedSystemType(this ITypeSymbol typeSymbol, string fullTypeName) =>
         (typeSymbol.SpecialType != SpecialType.None || s_supportedSystemTypes.Contains(fullTypeName)) &&
         typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceSystem;
