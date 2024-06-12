@@ -18,14 +18,14 @@ using MongoDB.Analyzer.Tests.Common.DataModel;
 
 namespace MongoDB.Analyzer.Tests.Common.TestCases.EF;
 
-public sealed class EFBasic
+public sealed class EFBasic : TestCasesBase
 {
     [MQLEF("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"Age\" : { \"$gt\" : 16, \"$lte\" : 21 } } }])")]
     [MQLEF("aggregate([{ \"$match\" : { \"Name\" : \"Bob\", \"CustomerId\" : 21 } }])")]
     public void EF_Where_Queries()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext>();
-        var db = new MyDbContext(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<AnalyzerDbContext>();
+        var db = new AnalyzerDbContext(dbContextOptions.Options);
         var users_query = db.Users.Where(u => u.Name == "Bob" && u.Age > 16 && u.Age <= 21);
         var customers_query = db.Customers.Where(c => c.Name == "Bob" & c.CustomerId == 21);
     }
@@ -34,8 +34,8 @@ public sealed class EFBasic
     [MQLEF("aggregate([{ \"$sort\" : { \"DateOfBirth\" : 1 } }])")]
     public void EF_OrderBy_Queries()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext>();
-        var db = new MyDbContext(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<AnalyzerDbContext>();
+        var db = new AnalyzerDbContext(dbContextOptions.Options);
         var users_query = db.Users.OrderBy(u => u.Age);
         var customers_query = db.Customers.OrderBy(c => c.DateOfBirth);
     }
@@ -44,8 +44,8 @@ public sealed class EFBasic
     [MQLEF("aggregate([{ \"$match\" : { \"Name\" : \"Bob\" } }, { \"$project\" : { \"LastName\" : \"$LastName\", \"_id\" : 0 } }])")]
     public void EF_Select_Queries()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext>();
-        var db = new MyDbContext(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<AnalyzerDbContext>();
+        var db = new AnalyzerDbContext(dbContextOptions.Options);
         var users_query = db.Users.Where(u => u.Age <= 21).Select(u => u.Address);
         var customers_query = db.Customers.Where(c => c.Name == "Bob").Select(c => c.LastName);
     }
@@ -54,8 +54,8 @@ public sealed class EFBasic
     [MQLEF("aggregate([{ \"$group\" : { \"_id\" : \"$LastName\" } }])")]
     public void EF_GroupBy_Queries()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext>();
-        var db = new MyDbContext(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<AnalyzerDbContext>();
+        var db = new AnalyzerDbContext(dbContextOptions.Options);
         var users_query = db.Users.GroupBy(u => u.Address);
         var customers_query = db.Customers.GroupBy(c => c.LastName);
     }
@@ -63,8 +63,8 @@ public sealed class EFBasic
     [MQLEF("aggregate([{ \"$unwind\" : \"$Scores\" }, { \"$project\" : { \"Scores\" : \"$Scores\", \"_id\" : 0 } }])")]
     public void EF_SelectMany_Queries()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext>();
-        var db = new MyDbContext(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<AnalyzerDbContext>();
+        var db = new AnalyzerDbContext(dbContextOptions.Options);
         var users_query = db.Users.SelectMany(u => u.Scores);
     }
 
@@ -72,25 +72,9 @@ public sealed class EFBasic
     [MQLEF("aggregate([{ \"$sort\" : { \"Age\" : 1, \"Height\" : -1 } }])")]
     public void EF_ThenBy_Queries()
     {
-        var dbContextOptions = new DbContextOptionsBuilder<MyDbContext>();
-        var db = new MyDbContext(dbContextOptions.Options);
+        var dbContextOptions = new DbContextOptionsBuilder<AnalyzerDbContext>();
+        var db = new AnalyzerDbContext(dbContextOptions.Options);
         var users_query = db.Users.OrderBy(u => u.Age).ThenBy(u => u.Height);
         var users_query2 = db.Users.OrderBy(u => u.Age).ThenByDescending(u => u.Height);
-    }
-}
-
-internal class MyDbContext : DbContext
-{
-    public DbSet<User> Users { get; set; }
-
-    public DbSet<Customer> Customers { get; set; }
-
-    public MyDbContext(DbContextOptions options) : base(options)
-    {
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
     }
 }
