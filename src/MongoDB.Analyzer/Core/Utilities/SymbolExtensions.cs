@@ -57,7 +57,9 @@ internal static class SymbolExtensions
     {
         "System.Collections.Generic.IEnumerable<T>",
         "System.Collections.Generic.IList<T>",
-        "System.Collections.Generic.List<T>"
+        "System.Collections.Generic.List<T>",
+        "System.Collections.Generic.IDictionary<TKey, TValue>",
+        "System.Collections.Generic.Dictionary<TKey, TValue>"
     };
 
     private static readonly HashSet<string> s_supportedSystemTypes = new()

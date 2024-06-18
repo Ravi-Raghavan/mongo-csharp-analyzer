@@ -97,13 +97,14 @@ internal sealed class TypesProcessor
         }
         // TODO optimize
         else if (typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-            namedTypeSymbol.TypeArguments.Length == 1 &&
             namedTypeSymbol.IsSupportedCollection())
         {
-            var underlyingTypeSyntax = CreateTypeSyntaxForSymbol(namedTypeSymbol.TypeArguments.Single());
-            var listSyntax = SyntaxFactory.GenericName(
-                SyntaxFactory.Identifier("List"),
-                SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(new[] { underlyingTypeSyntax })));
+            var underlyingTypeSyntaxes = namedTypeSymbol.TypeArguments.Select(typeArgument => CreateTypeSyntaxForSymbol(typeArgument));
+            var collectionName = namedTypeSymbol.Name;
+
+            var collectionSyntax = SyntaxFactory.GenericName(
+                SyntaxFactory.Identifier(collectionName),
+                SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(underlyingTypeSyntaxes)));
 
             result = SyntaxFactory.QualifiedName(
                         SyntaxFactory.QualifiedName(
@@ -111,7 +112,7 @@ internal sealed class TypesProcessor
                                 SyntaxFactory.IdentifierName("System"),
                                 SyntaxFactory.IdentifierName("Collections")),
                             SyntaxFactory.IdentifierName("Generic")),
-                        listSyntax);
+                        collectionSyntax);
         }
         else
         {
