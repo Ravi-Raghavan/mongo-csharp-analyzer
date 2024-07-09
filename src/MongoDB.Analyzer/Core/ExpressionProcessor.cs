@@ -522,6 +522,8 @@ internal static class ExpressionProcessor
         SymbolInfo symbolInfo,
         TypeInfo typeInfo)
     {
+        var parentKind = simpleNameSyntax.Parent.Kind();
+
         if (IsChildOfLambdaOrQueryOrBuildersParameter(rewriteContext, simpleNameSyntax, symbolInfo) ||
             simpleNameSyntax.IsMemberOfAnonymousObject() ||
             typeInfo.Type == null)

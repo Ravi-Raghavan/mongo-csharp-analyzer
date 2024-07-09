@@ -23,6 +23,10 @@ namespace MongoDB.Analyzer.Tests.Jira;
 public sealed class JiraTests : DiagnosticsTestCasesRunner
 {
     [DataTestMethod]
+    [CodeBasedTestCasesSource(typeof(VS56))]
+    public Task VS56(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
+
+    [DataTestMethod]
     [CodeBasedTestCasesSource(typeof(VS78))]
     public Task VS78(DiagnosticTestCase testCase) => VerifyTestCase(testCase);
 }
