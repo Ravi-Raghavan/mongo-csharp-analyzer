@@ -17,6 +17,7 @@ namespace MongoDB.Analyzer.Core;
 internal static class SymbolExtensions
 {
     private const string AssemblyMongoDBDriver = "MongoDB.Driver";
+    private const string NamespaceEF = "Microsoft.EntityFrameworkCore";
     private const string NamespaceMongoDBBson = "MongoDB.Bson";
     private const string NamespaceMongoDBBsonAttributes = "MongoDB.Bson.Serialization.Attributes";
     private const string NamespaceMongoDBDriver = "MongoDB.Driver";
@@ -155,6 +156,10 @@ internal static class SymbolExtensions
         _ => symbol.IsContainedInLambda(parentNode)
     };
 
+    public static bool IsDBSet(this ITypeSymbol typeSymbol) =>
+        typeSymbol?.Name == "DbSet" &&
+        typeSymbol?.ContainingNamespace?.ToDisplayString() == NamespaceEF;
+
     public static bool IsDefinedInMongoDriver(this ISymbol symbol) => symbol?.ContainingAssembly.Name == AssemblyMongoDBDriver;
 
     public static bool IsDefinedInMongoLinqOrSystemLinq(this ISymbol symbol)
@@ -217,9 +222,29 @@ internal static class SymbolExtensions
             _ => false
         };
 
-    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol) =>
-        typeSymbol is INamedTypeSymbol namedTypeSymbol &&
-        s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString());
+    public static bool IsSupportedCollection(this ITypeSymbol typeSymbol)
+    {
+        if (typeSymbol is not INamedTypeSymbol namedTypeSymbol)
+        {
+            return false;
+        }
+
+        while (namedTypeSymbol != null)
+        {
+            if (s_supportedCollections.Contains(namedTypeSymbol.ConstructedFrom?.ToDisplayString()))
+            {
+                return true;
+            }
+
+            if (namedTypeSymbol.Interfaces.Any(i => s_supportedCollections.Contains(i.ConstructedFrom?.ToDisplayString()))){
+                return true;
+            }
+
+            namedTypeSymbol = namedTypeSymbol.BaseType;
+        }
+
+        return false;
+    }
 
     public static bool IsSupportedIMongoCollection(this ITypeSymbol typeSymbol) =>
         typeSymbol.IsIMongoCollection() &&
